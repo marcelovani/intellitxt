@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ */
+
+/*
+ * Implements hook_node_load().
+ */
+function intellitxt_node_load($nodes, $types) {
+  // we should check against type.
+  // TODO: set a variable in admin of allowed types.
+  if (variable_get('intellitxt_configured', $default = false)) {
+    $domain = variable_get('intellitxt_domain', $default = '');
+    $ipid = variable_get('intellitxt_ipid', $default = '');
+    drupal_add_js('http://' . $domain . '/intellitxt/front.asp?ipid=' . $ipid , array('group' => JS_THEME, 'weight' => 1000));		
+  }
+}
+
+/*
+ * Implements hook_perm().
+ */
+function intellitxt_perm() {
+	return array('administer Intellixt settings');
+}
+
+/*
+ * Implements hook_menu().
+ */
+function intellitxt_menu() {
+  $items = array();
+
+  $items['admin/structure/intellitxt/settings'] = array(
+    'title' => 'Intellitxt Settings',
+    'type' => MENU_NORMAL_ITEM,
+    'description' => "Configure your site-wide Intellitext settings.",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('intellitxt_admin_settings_form'),
+    'access arguments' => array('administer Intellixt settings'),
+    'file' => 'intellitxt.admin.inc',
+    'weight' => 0,
+  );
+  
+  return $items;
+}
