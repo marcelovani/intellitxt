@@ -8,11 +8,25 @@
  * Implements hook_node_load().
  */
 function intellitxt_node_load($nodes, $types) {
-  // we should check against type.
+  // checking against type would be nice.
   // TODO: set a variable in admin of allowed types.
   if (variable_get('intellitxt_configured', $default = false)) {
     $domain = variable_get('intellitxt_domain', $default = '');
-    $ipid = variable_get('intellitxt_ipid', $default = '');
+    //check if there is a section specific code
+    $section_codes = variable_get('intellitxt_sections', array());
+    $ipid = '';
+    if (!empty($section_codes)) {
+    	foreach ($section_codes as $path_code) {
+    		$pattern = '@^' . key($path_code) . '.*@';    		
+    		if (preg_match($pattern, request_path())) {
+    			$ipid = current($path_code);
+    		}
+    	}
+    }
+    
+    $ipid = ($ipid == '') ? variable_get('intellitxt_ipid', $default = '') : $ipid;
+    
+  	//add as last JS
     drupal_add_js('http://' . $domain . '/intellitxt/front.asp?ipid=' . $ipid , array('group' => JS_THEME, 'weight' => 1000));		
   }
 }

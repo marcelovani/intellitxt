@@ -23,7 +23,7 @@ function intellitxt_admin_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Custom DNS'),
     '#default_value' => variable_get('intellitxt_domain', ''),
-    //'#required' => TRUE,
+    '#required' => TRUE,
     '#description' => t('Domain string supplied from Vibrant. eg: mydrupalsite.uk.intellitxt.com'),
     '#maxlength' => 80,  
   );  
@@ -146,14 +146,15 @@ function intellitxt_admin_settings_form_remove_one($form, &$form_state) {
  * Validates the admin form for Intellitext settings
  */
 function intellitxt_admin_settings_form_validate($form, &$form_state) {
-	/*
+	
 	if (preg_match('/\s/', $form_state['values']['domain'])) {
 		form_set_error('domain','Custom DNS must not contain any whitespace');
 	}
-	if (preg_match('/\s/', $form_state['values']['ipid']) || !ctype_digit($form_state['values']['ipid'])) {
+	
+	if (preg_match('/\s/', $form_state['values']['intellitext']['ipid']) || !ctype_digit($form_state['values']['intellitext']['ipid'])) {
 		form_set_error('ipid','IPID must only contain numbers and no whitespace');
 	}
-*/
+
 }
 
 /**
