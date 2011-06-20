@@ -65,14 +65,14 @@ function intellitxt_admin_settings_form($form, &$form_state) {
       '#type' => 'textfield',
       '#title' => t('Path'),
   	  '#description' => 'Enter the path after ' . $_SERVER['HTTP_HOST'] . '/ do not include leading or trailing slash',
-  	  '#value' => key($saved_sections[$i]),
+  	  '#default_value' => key($saved_sections[$i]),
     );
-  	$form['sections']['section']['ipid_'.$i] = array(
+    $form['sections']['section']['ipid_'.$i] = array(
       '#type' => 'textfield',
       '#title' => t('IPID'),
   	  '#prefix' => '<div class="ipid">',
       '#suffix' => '</div></div>',
-  	  '#value' => current($saved_sections[$i]),
+  	  '#default_value' => current($saved_sections[$i]),
     );    
   }
   
@@ -160,6 +160,7 @@ function intellitxt_admin_settings_form_validate($form, &$form_state) {
  * Saves Intellitext settings into variables
  */
 function intellitxt_admin_settings_form_submit($form, &$form_state) {
+	
 	variable_set('intellitxt_configured', true);
 	variable_set('intellitxt_domain', $form_state['values']['domain']);
 	if (isset($form_state['values']['intellitext']['ipid'])) {
@@ -167,7 +168,7 @@ function intellitxt_admin_settings_form_submit($form, &$form_state) {
 	}
 	$sections = array();
 	$sections_state = $form_state['values']['sections']['section'];
-	var_dump($sections_state);
+
 	for ($i=0; $i < count($sections_state); $i++) {
 	  if (!empty($sections_state['sec_' . $i]) && !empty($sections_state['ipid_' . $i])) {
 	    $sections[$i] = array($sections_state['sec_' . $i] => $sections_state['ipid_' . $i]);
