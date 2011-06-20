@@ -35,6 +35,7 @@ function intellitxt_menu() {
     'type' => MENU_NORMAL_ITEM,
     'description' => "Configure your site-wide Intellitext settings.",
     'page callback' => 'drupal_get_form',
+   // 'page arguments' => array('intellitxt_admin_settings_form'),
     'page arguments' => array('intellitxt_admin_settings_form'),
     'access arguments' => array('administer Intellixt settings'),
     'file' => 'intellitxt.admin.inc',
