@@ -18,7 +18,7 @@ function intellitxt_node_load($nodes, $types) {
     $matches = array();
     if (!empty($section_codes)) {
     	foreach ($section_codes as $path_code) {
-    		$pattern = '@^' . key($path_code) . '.*@';
+    		$pattern = '@^' . preg_quote(key($path_code)) . '.*@';
     		if (preg_match($pattern, request_path())) {
     			$matches[count(explode('/', key($path_code)))] = current($path_code);
     		}
