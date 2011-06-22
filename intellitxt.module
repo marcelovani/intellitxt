@@ -8,17 +8,17 @@
  * Implements hook_node_load().
  */
 function intellitxt_node_load($nodes, $types) {
-  // checking against type would be nice.
+  // Checking against type would be nice.
   // TODO: set a variable in admin of allowed types.
   if (variable_get('intellitxt_configured', $default = false)) {
     $domain = variable_get('intellitxt_domain', $default = '');
-    //check if there is a section specific code
+    // Check if there is a section specific code
     $section_codes = variable_get('intellitxt_sections', array());
     $ipid = '';
     $matches = array();
     if (!empty($section_codes)) {
     	foreach ($section_codes as $path_code) {
-    		$pattern = '@^' . key($path_code) . '.*@';    		
+    		$pattern = '@^' . key($path_code) . '.*@';
     		if (preg_match($pattern, request_path())) {
     			$matches[count(explode('/', key($path_code)))] = current($path_code);
     		}
@@ -26,9 +26,9 @@ function intellitxt_node_load($nodes, $types) {
     	ksort($matches);
     	$ipid = array_pop($matches);
     }
-  	//add as last JS
+  	// Add as last JS
   	if ($ipid) {
-      drupal_add_js('http://' . $domain . '/intellitxt/front.asp?ipid=' . $ipid , array('group' => JS_THEME, 'weight' => 1000));	
+      drupal_add_js('http://' . $domain . '/intellitxt/front.asp?ipid=' . $ipid , array('group' => JS_THEME, 'weight' => 1000));
   	}
   }
 }
@@ -51,12 +51,11 @@ function intellitxt_menu() {
     'type' => MENU_NORMAL_ITEM,
     'description' => "Configure your site-wide Intellitext settings.",
     'page callback' => 'drupal_get_form',
-   // 'page arguments' => array('intellitxt_admin_settings_form'),
     'page arguments' => array('intellitxt_admin_settings_form'),
     'access arguments' => array('administer Intellixt settings'),
     'file' => 'intellitxt.admin.inc',
     'weight' => 0,
   );
-  
+
   return $items;
 }
