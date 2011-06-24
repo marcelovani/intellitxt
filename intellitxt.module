@@ -29,7 +29,7 @@ function intellitxt_node_load($nodes, $types) {
     
     // Add as last JS
     if ($ipid) {
-      drupal_add_js('http://' . $domain . '/intellitxt/front.asp?ipid=' . $ipid , array('group' => JS_THEME, 'weight' => 1000, 'type' => 'external'));
+      drupal_add_js('http://' . check_plain($domain) . '/intellitxt/front.asp?ipid=' . check_plain($ipid) , array('group' => JS_THEME, 'weight' => 1000, 'type' => 'external'));
     }
   }
 }
@@ -47,7 +47,7 @@ function intellitxt_perm() {
 function intellitxt_menu() {
   $items = array();
 
-  $items['admin/config/intellitxt/settings'] = array(
+  $items['admin/config/system/intellitxt'] = array(
     'title' => 'Intellitxt Settings',
     'type' => MENU_NORMAL_ITEM,
     'description' => "Configure your site-wide Intellitext settings.",
