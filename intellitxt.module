@@ -10,21 +10,21 @@
 function intellitxt_node_load($nodes, $types) {
   // Checking against type would be nice.
   // TODO: set a variable in admin of allowed types.
-  if (variable_get('intellitxt_configured', $default = false)) {
+  if (variable_get('intellitxt_configured', $default = FALSE)) {
     $domain = variable_get('intellitxt_domain', $default = '');
     // Check if there is a section specific code
     $section_codes = variable_get('intellitxt_sections', array());
     $ipid = '';
     $matches = array();
     if (!empty($section_codes)) {
-    	foreach ($section_codes as $path_code) {
-    		$pattern = '@^' . key($path_code) . '.*@';
-    		if (preg_match($pattern, request_path())) {
-    			$matches[count(explode('/', key($path_code)))] = current($path_code);
-    		}
-    	}
-    	ksort($matches);
-    	$ipid = array_pop($matches);
+      foreach ($section_codes as $path_code) {
+        $pattern = '@^' . key($path_code) . '.*@';
+        if (preg_match($pattern, request_path())) {
+    	  $matches[count(explode('/', key($path_code)))] = current($path_code);
+        }
+      }
+      ksort($matches);
+      $ipid = array_pop($matches);
     }
   	// Add as last JS
   	if ($ipid) {
