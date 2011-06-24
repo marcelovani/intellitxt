@@ -1,5 +1,5 @@
 <?php
-
+// $Id$
 /**
  * @file
  */
@@ -18,18 +18,19 @@ function intellitxt_node_load($nodes, $types) {
     $matches = array();
     if (!empty($section_codes)) {
       foreach ($section_codes as $path_code) {
-    		$pattern = '@^' . preg_quote(key($path_code)) . '.*@';
-    		if (preg_match($pattern, request_path())) {
-    			$matches[count(explode('/', key($path_code)))] = current($path_code);
-    		}
+        $pattern = '@^' . preg_quote(key($path_code)) . '.*@';
+        if (preg_match($pattern, request_path())) {
+          $matches[count(explode('/', key($path_code)))] = current($path_code);
+        }
       }
       ksort($matches);
       $ipid = array_pop($matches);
     }
-  	// Add as last JS
-  	if ($ipid) {
+    
+    // Add as last JS
+    if ($ipid) {
       drupal_add_js('http://' . $domain . '/intellitxt/front.asp?ipid=' . $ipid , array('group' => JS_THEME, 'weight' => 1000, 'type' => 'external'));
-  	}
+    }
   }
 }
 
@@ -37,7 +38,7 @@ function intellitxt_node_load($nodes, $types) {
  * Implements hook_perm().
  */
 function intellitxt_perm() {
-	return array('administer Intellixt settings');
+  return array('administer Intellixt settings');
 }
 
 /*

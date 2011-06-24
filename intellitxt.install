@@ -1,5 +1,9 @@
 <?php
-
+// $Id$
+/**
+ * @file
+ * Install, upate and uninstall functions for the intellitxt module.
+ */
 /*
  * Implements hook_install().
  * Make this module heavy as the JS needs to be added last.
