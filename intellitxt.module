@@ -1,10 +1,11 @@
 <?php
-// $Id$
+
 /**
  * @file
+ * Adds permissions, menu item and output JS for Intellitxt module.
  */
 
-/*
+/**
  * Implements hook_node_load().
  */
 function intellitxt_node_load($nodes, $types) {
@@ -34,14 +35,19 @@ function intellitxt_node_load($nodes, $types) {
   }
 }
 
-/*
- * Implements hook_perm().
+/**
+ * Implements hook_permission().
  */
-function intellitxt_perm() {
-  return array('administer Intellixt settings');
+function intellitxt_permission() {
+  return array(
+    'administer intellitxt settings' => array(
+      'title' => t('Administer Intellixt settings'),
+      'description' => t('Set up and configure Intellitxt output'),
+    ),
+  );
 }
 
-/*
+/**
  * Implements hook_menu().
  */
 function intellitxt_menu() {

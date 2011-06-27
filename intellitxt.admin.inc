@@ -1,8 +1,8 @@
 <?php
-// $Id$
+
 /**
  * @file
- * 
+ * Provides form processing code for module settings
  */
 
 /**
