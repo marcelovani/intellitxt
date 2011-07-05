@@ -6,7 +6,7 @@
  */
 
 /**
- * Builds the admin form for Intellitext settings
+ * Builds the admin form for Intellitxt settings
  * @ingroup forms
  */
 function intellitxt_admin_settings_form($form, &$form_state) {
@@ -34,35 +34,38 @@ function intellitxt_admin_settings_form($form, &$form_state) {
     '#maxlength' => 80,
   );
 
-  // Multiple codes for each section
-  $form['sections'] = array(
+  // Multiple codes for each tag
+  $form['tag_settings'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Section settings'),
-    '#prefix' => '<div id="sections-fieldset-wrapper">',
+    '#title' => t('Tag settings'),
+    '#prefix' => '<div id="tags-fieldset-wrapper">',
     '#suffix' => '</div>',
   );
-  // Build the fieldset with the proper number of sections. We'll use
-  // $form_state['num_sections'] to determine the number of textfields to build.
-  $saved_sections = variable_get('intellitxt_sections', array());
-  if (empty($form_state['num_sections'])) {
+  // Build the fieldset with the proper number of tags. We'll use
+  // $form_state['num_tags'] to determine the number of textfields to build.
+  $saved_tags = variable_get('intellitxt_tags', array());
+  if (empty($form_state['num_tags'])) {
     // init
-    $form_state['num_sections'] = (!empty($saved_sections)) ? count($saved_sections) : 1;
+    $form_state['num_tags'] = (!empty($saved_tags)) ? count($saved_tags) : 1;
   }
 
   // Build the current number of text fields
-  for ($i = 0; $i < $form_state['num_sections']; $i++) {
-    $default_section = (empty($saved_sections[$i])) ? '' : key($saved_sections[$i]);
-    $form['sections']['path_code']['section_' . $i]['sec_' . $i] = array(
-      '#prefix' => '<div class="section-path-code"><div class="path">',
+  for ($i = 0; $i < $form_state['num_tags']; $i++) {
+    $default_tag = (empty($saved_tags[$i])) ? '' : key($saved_tags[$i]);
+    $form['tag_settings']['tags']['tag_' . $i]['machine_name'] = array(
+      '#prefix' => '<div class="tags-tag"><div class="machine_name">',
       '#suffix' => '</div>',
-      '#type' => 'textfield',
-      '#title' => t('Path'),
-      '#description' => t('Enter the path after @host/ do not include leading or trailing slash', array('@host' => $_SERVER['HTTP_HOST'])),
-      '#default_value' => $default_section,
+      '#type' => 'machine_name',
+      '#title' => t('Machine name'),
+      '#description' => t('Enter a name for this tag'),
+      '#default_value' => $default_tag,
+      '#machine_name' => array(
+        'exists' => 'intellitxt_admin_machine_name_exists',
+      ),
     );
 
-    $default_ipid = (empty($saved_sections[$i])) ? '' : current($saved_sections[$i]);
-    $form['sections']['path_code']['section_' . $i]['ipid_' . $i] = array(
+    $default_ipid = (empty($saved_tags[$i])) ? '' : current($saved_tags[$i]);
+    $form['tag_settings']['tags']['tag_' . $i]['ipid'] = array(
       '#type' => 'textfield',
       '#title' => t('IPID'),
       '#prefix' => '<div class="ipid">',
@@ -72,7 +75,7 @@ function intellitxt_admin_settings_form($form, &$form_state) {
   }
 
   // Add more button
-  $form['sections']['add_section'] = array(
+  $form['tag_settings']['add_tag'] = array(
     '#type' => 'submit',
     '#value' => t('Add one more'),
     '#submit' => array('intellitxt_admin_settings_form_add_one'),
@@ -80,18 +83,18 @@ function intellitxt_admin_settings_form($form, &$form_state) {
     // properties of #ajax.
     '#ajax' => array(
       'callback' => 'intellitxt_admin_settings_form_callback',
-      'wrapper' => 'sections-fieldset-wrapper',
+      'wrapper' => 'tags-fieldset-wrapper',
     ),
   );
 
-  if ($form_state['num_sections'] > 1) {
-    $form['sections']['remove_section'] = array(
+  if ($form_state['num_tags'] > 1) {
+    $form['tag_settings']['remove_tag'] = array(
       '#type' => 'submit',
       '#value' => t('Remove one'),
       '#submit' => array('intellitxt_admin_settings_form_remove_one'),
       '#ajax' => array(
         'callback' => 'intellitxt_admin_settings_form_callback',
-        'wrapper' => 'sections-fieldset-wrapper',
+        'wrapper' => 'tags-fieldset-wrapper',
       ),
     );
   }
@@ -109,10 +112,10 @@ function intellitxt_admin_settings_form($form, &$form_state) {
 /**
  * Callback for both ajax-enabled buttons.
  *
- * This simply selects and returns the fieldset with the sections in it.
+ * This simply selects and returns the fieldset with the tags in it.
  */
 function intellitxt_admin_settings_form_callback($form, $form_state) {
-  return $form['sections'];
+  return $form['tag_settings'];
 }
 
 /**
@@ -121,7 +124,7 @@ function intellitxt_admin_settings_form_callback($form, $form_state) {
  * It just increments the max counter and causes a rebuild.
  */
 function intellitxt_admin_settings_form_add_one($form, &$form_state) {
-  $form_state['num_sections']++;
+  $form_state['num_tags']++;
   $form_state['rebuild'] = TRUE;
 }
 
@@ -131,14 +134,14 @@ function intellitxt_admin_settings_form_add_one($form, &$form_state) {
  * Decrements the max counter and causes a form rebuild.
  */
 function intellitxt_admin_settings_form_remove_one($form, &$form_state) {
-  if ($form_state['num_sections'] > 1) {
-    $form_state['num_sections']--;
+  if ($form_state['num_tags'] > 1) {
+    $form_state['num_tags']--;
   }
   $form_state['rebuild'] = TRUE;
 }
 
 /**
- * Validates the admin form for Intellitext settings
+ * Validates the admin form for Intellitxt settings
  */
 function intellitxt_admin_settings_form_validate($form, &$form_state) {
 
@@ -147,56 +150,68 @@ function intellitxt_admin_settings_form_validate($form, &$form_state) {
   }
   
   if ($form_state['values']['intellitxt_enabled']) {
-    // Check we have at least one path and ipid pair
-    $sections_state = $form_state['values']['sections']['path_code'];
-    for ($i=0; $i < count($sections_state); $i++) {
-      
-      $path = $sections_state['section_' . $i]['sec_' . $i];
-      $ipid = $sections_state['section_' . $i]['ipid_' . $i];
-      
+    // Check we have at least one machine name and ipid pair
+    $tags_state = $form_state['values']['tag_settings']['tags'];
+    for ($i = 0; $i < count($tags_state); $i++) {
+      $machine_name = $tags_state['tag_' . $i]['machine_name'];
+      $ipid = $tags_state['tag_' . $i]['ipid'];
+    
       // Check for missing values
-      if ($path && !$ipid) {
-        form_set_error('sections][path_code][section_' . $i, 'Path is missing IPID code');
+      if ($machine_name && !$ipid) {
+        form_set_error('tags][tag_' . $i, 'Tag is missing IPID code');
       } 
-      elseif (!$path && $ipid) {
-        form_set_error('sections][path_code][section_' . $i, 'Please add a Path for IPID code');
+      elseif (!$machine_name && $ipid) {
+        form_set_error('tags][tag_' . $i, 'Please add a machine name for IPID code');
       }
-      
+    
       // Validate values
-      if (preg_match('/\s/', $path)) {
-        form_set_error('sections][path_code][section_' . $i . '][sec_' . $i, 'Path must not contain any whitespace');
+      // TODO machine name 
+      if (preg_match('/\s/', $machine_name)) {
+        form_set_error('tag_settings][tags][tag_' . $i . '][machine_name', 'Machine name must not contain any whitespace');
       }
-      
+    
       if (preg_match('/\s/', $ipid) || ($ipid && !ctype_digit($ipid))) {
-        form_set_error('sections][path_code][section_' . $i . '][ipid_' . $i, 'IPID must only contain numbers and no whitespace');
-      }	
+        form_set_error('tag_settings][tags][tag_' . $i . '][ipid', 'IPID must only contain numbers and no whitespace');
+      }
     }
   }
 }
 
 /**
- * Saves Intellitext settings into variables
+ * Saves Intellitxt settings into variables
  */
 function intellitxt_admin_settings_form_submit($form, &$form_state) {
   $intellitxt_enabled = ($form_state['values']['intellitxt_enabled']) ? TRUE : FALSE;
   variable_set('intellitxt_configured', $intellitxt_enabled);
   variable_set('intellitxt_domain', $form_state['values']['domain']);
-  $sections = array();
-  $sections_state = $form_state['values']['sections']['path_code'];
+  $tags = array();
+  $tags_state = $form_state['values']['tag_settings']['tags'];
 
-  for ($i=0; $i < count($sections_state); $i++) {
-    $section_path = trim($sections_state['section_' . $i]['sec_' . $i], '/');
-    $section_ipid = $sections_state['section_' . $i]['ipid_' . $i];
-    if (!empty($section_path) && !empty($section_ipid)) {
-      $sections[] = array($section_path => $section_ipid);
+  for ($i=0; $i < count($tags_state); $i++) {
+    $tag_machine_name = trim($tags_state['tag_' . $i]['machine_name'], '/');
+    $tag_ipid = $tags_state['tag_' . $i]['ipid'];
+    if (!empty($tag_machine_name) && !empty($tag_ipid)) {
+      $tags[] = array($tag_machine_name => $tag_ipid);
     }
   }
 
-  if (!empty($sections)) {
-    variable_set('intellitxt_sections', $sections);
+  if (!empty($tags)) {
+    variable_set('intellitxt_tags', $tags);
   }
   else {
-    variable_del('intellitxt_sections');
+    variable_del('intellitxt_tags');
   }
   drupal_set_message(t('Configuration Saved'));
+}
+
+/**
+ * Callback for machine name field to check whether it already exists
+ */
+function intellitxt_admin_machine_name_exists($machine_name) {
+  $tags = variable_get('intellitxt_tags', array());
+  foreach ($tags as $tag) {
+    if (key($tag) == $machine_name) {
+      return $tag;
+    }
+  }
 }

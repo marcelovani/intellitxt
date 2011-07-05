@@ -1,37 +1,28 @@
 <?php
-
 /**
  * @file
  * Adds permissions, menu item and output JS for Intellitxt module.
  */
 
 /**
- * Implements hook_node_load().
+ * Implementation of hook_init()
  */
-function intellitxt_node_load($nodes, $types) {
-  // Checking against type would be nice.
-  // TODO: set a variable in admin of allowed types.
-  if (variable_get('intellitxt_configured', $default = FALSE)) {
+function intellitxt_context_page_reaction() {
+  $plugin = context_get_plugin('reaction', 'intellitxt');
+  if ($plugin) {
+    $plugin->execute();
+  }
+}
+
+/**
+ * Function to add the intellitxt tag onto the page
+ * Called from the context reaction plugin
+ */
+function intellitxt_add_tag($ipid) {
+  $enabled = variable_get('intellitxt_configured', FALSE);
+  if ($enabled) {
     $domain = variable_get('intellitxt_domain', $default = '');
-    // Check if there is a section specific code
-    $section_codes = variable_get('intellitxt_sections', array());
-    $ipid = '';
-    $matches = array();
-    if (!empty($section_codes)) {
-      foreach ($section_codes as $path_code) {
-        $pattern = '@^' . preg_quote(key($path_code)) . '.*@';
-        if (preg_match($pattern, request_path())) {
-          $matches[count(explode('/', key($path_code)))] = current($path_code);
-        }
-      }
-      ksort($matches);
-      $ipid = array_pop($matches);
-    }
-    
-    // Add as last JS
-    if ($ipid) {
-      drupal_add_js('http://' . check_plain($domain) . '/intellitxt/front.asp?ipid=' . check_plain($ipid) , array('group' => JS_THEME, 'weight' => 1000, 'type' => 'external'));
-    }
+    drupal_add_js('http://' . check_plain($domain) . '/intellitxt/front.asp?ipid=' . check_plain($ipid) , array('group' => JS_THEME, 'weight' => 1000, 'type' => 'external'));
   }
 }
 
@@ -41,8 +32,8 @@ function intellitxt_node_load($nodes, $types) {
 function intellitxt_permission() {
   return array(
     'administer intellitxt settings' => array(
-      'title' => t('Administer Intellixt settings'),
-      'description' => t('Set up and configure Intellitxt output'),
+      'title' => t('Administer intellitxt settings'),
+      'description' => t('Set up and configure intellitxt output'),
     ),
   );
 }
@@ -56,13 +47,46 @@ function intellitxt_menu() {
   $items['admin/config/system/intellitxt'] = array(
     'title' => 'Intellitxt Settings',
     'type' => MENU_NORMAL_ITEM,
-    'description' => "Configure your site-wide Intellitext settings.",
+    'description' => "Configure your site-wide intellitxt settings.",
     'page callback' => 'drupal_get_form',
     'page arguments' => array('intellitxt_admin_settings_form'),
-    'access arguments' => array('administer Intellixt settings'),
+    'access arguments' => array('administer intellitxt settings'),
     'file' => 'intellitxt.admin.inc',
     'weight' => 0,
   );
 
   return $items;
+}
+
+/**
+ * Implements of hook_context_plugins()
+ * Define intellitxt context plugins
+ */
+function intellitxt_context_plugins() {
+  $plugins = array();
+  $plugins['intellitxt_context_reaction_tag'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'intellitxt') . '/plugins',
+      'file' => 'intellitxt_context_reaction_tag.inc',
+      'class' => 'intellitxt_context_reaction_tag',
+      'parent' => 'context_reaction',
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Implements hook_context_registry()
+ * Register plugins with context as being conditions and/or reaction
+ */
+function intellitxt_context_registry() {
+  return array(
+    'reactions' => array(
+      'intellitxt' => array(
+        'title' => t('Intellitxt tag'),
+        'description' => t('Add an intellitxt tag to the page with the selected ipid'),
+        'plugin' => 'intellitxt_context_reaction_tag',
+      ),
+    ),
+  );
 }

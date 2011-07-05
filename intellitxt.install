@@ -21,7 +21,25 @@ function intellitxt_install() {
  *  Clean up. Remove vars.
  */
 function intellitxt_uninstall() {
-  variable_del('intellitxt_sections');
+  variable_del('intellitxt_tags');
   variable_del('intellitxt_domain');
   variable_del('intellitxt_configured');
+}
+
+
+/**
+ * Update function to move from path based sections to machine name ipid pairs that are placed on the page with contexts
+ * Your tags will need to be setup with contexts following this update, it's not done automatically
+ */
+function intellitxt_update_7000() {
+  $sections = variable_get('intellitxt_sections', array());
+  $tags = array();
+  foreach ($sections as $path_code) {
+    $path = key($path_code);
+    $ipid = current($path_code);
+    $machine_name = preg_replace('/[^a-z0-9]+/', '_', $path);
+    $tags[] = array($machine_name => $ipid);
+  }
+  variable_set('intellitxt_tags', $tags);
+  variable_del('intellitxt_sections');
 }
