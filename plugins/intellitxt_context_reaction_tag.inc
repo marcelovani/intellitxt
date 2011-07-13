@@ -6,7 +6,7 @@ class intellitxt_context_reaction_tag extends context_reaction {
     $options = array();
     $tags = variable_get('intellitxt_tags', array());
     foreach ($tags as $tag) {
-      $options[(int)current($tag)] = key($tag) . ' (' . current($tag) . ')';
+      $options[key($tag)] = key($tag) . ' (' . current($tag) . ')';
     }
     asort($options);
 
@@ -22,9 +22,9 @@ class intellitxt_context_reaction_tag extends context_reaction {
   function execute() {
     $contexts = $this->get_contexts();
     foreach ($contexts as $context) {
-      $ipid = $context->reactions[$this->plugin];
-      if ($ipid) {
-        intellitxt_add_tag($ipid);
+      $machine_name = $context->reactions[$this->plugin];
+      if ($machine_name) {
+        intellitxt_add_tag($machine_name);
       }
     }
   }

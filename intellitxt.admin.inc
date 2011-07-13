@@ -22,7 +22,7 @@ function intellitxt_admin_settings_form($form, &$form_state) {
   $form['intellitxt_enabled'] = array(
     '#type' => 'checkbox',
     '#title' => 'Enable Intellitxt',
-    '#default_value' => variable_get('intellitxt_configured', FALSE),
+    '#default_value' => variable_get('intellitxt_configured', TRUE),
   );
 
   $form['domain'] = array(
@@ -62,6 +62,7 @@ function intellitxt_admin_settings_form($form, &$form_state) {
       '#machine_name' => array(
         'exists' => 'intellitxt_admin_machine_name_exists',
       ),
+      '#required' => FALSE,
     );
 
     $default_ipid = (empty($saved_tags[$i])) ? '' : current($saved_tags[$i]);
@@ -79,8 +80,6 @@ function intellitxt_admin_settings_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => t('Add one more'),
     '#submit' => array('intellitxt_admin_settings_form_add_one'),
-    // See the examples in ajax_example.module for more details on the
-    // properties of #ajax.
     '#ajax' => array(
       'callback' => 'intellitxt_admin_settings_form_callback',
       'wrapper' => 'tags-fieldset-wrapper',
@@ -88,6 +87,7 @@ function intellitxt_admin_settings_form($form, &$form_state) {
   );
 
   if ($form_state['num_tags'] > 1) {
+    // Remove button
     $form['tag_settings']['remove_tag'] = array(
       '#type' => 'submit',
       '#value' => t('Remove one'),
@@ -144,7 +144,6 @@ function intellitxt_admin_settings_form_remove_one($form, &$form_state) {
  * Validates the admin form for Intellitxt settings
  */
 function intellitxt_admin_settings_form_validate($form, &$form_state) {
-
   if (preg_match('/\s/', $form_state['values']['domain'])) {
     form_set_error('domain', 'Custom DNS must not contain any whitespace');
   }
@@ -165,7 +164,6 @@ function intellitxt_admin_settings_form_validate($form, &$form_state) {
       }
     
       // Validate values
-      // TODO machine name 
       if (preg_match('/\s/', $machine_name)) {
         form_set_error('tag_settings][tags][tag_' . $i . '][machine_name', 'Machine name must not contain any whitespace');
       }
@@ -208,10 +206,5 @@ function intellitxt_admin_settings_form_submit($form, &$form_state) {
  * Callback for machine name field to check whether it already exists
  */
 function intellitxt_admin_machine_name_exists($machine_name) {
-  $tags = variable_get('intellitxt_tags', array());
-  foreach ($tags as $tag) {
-    if (key($tag) == $machine_name) {
-      return $tag;
-    }
-  }
+  return _intellitxt_get_tag_by_name($machine_name);
 }

@@ -31,7 +31,7 @@ function intellitxt_uninstall() {
  * Update function to move from path based sections to machine name ipid pairs that are placed on the page with contexts
  * Your tags will need to be setup with contexts following this update, it's not done automatically
  */
-function intellitxt_update_7000() {
+function intellitxt_update_7200() {
   $sections = variable_get('intellitxt_sections', array());
   $tags = array();
   foreach ($sections as $path_code) {
