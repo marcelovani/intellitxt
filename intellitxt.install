@@ -26,6 +26,13 @@ function intellitxt_uninstall() {
   variable_del('intellitxt_configured');
 }
 
+/**
+ * Implements hook_enable()
+ */
+function intellitxt_enable() {
+  // Reset the context cache
+  context_invalidate_cache();
+}
 
 /**
  * Update function to move from path based sections to machine name ipid pairs that are placed on the page with contexts
