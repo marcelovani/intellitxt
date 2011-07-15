@@ -3,3 +3,6 @@ description = "Integrates Intellitxt onto a site."
 core = 7.x
 package = "Advertising"
 dependencies[] = "context"
+
+files[] = plugins/intellitxt_context_reaction_tag.inc
+files[] = intellitxt.admin.inc
