@@ -7,6 +7,7 @@
 
 /**
  * Implements hook_install().
+ *
  * Make this module heavy as the JS needs to be added last.
  */
 function intellitxt_install() {
@@ -18,7 +19,8 @@ function intellitxt_install() {
 
 /**
  * Implements hook_uninstall().
- *  Clean up. Remove vars.
+ *
+ * Clean up. Remove variables.
  */
 function intellitxt_uninstall() {
   variable_del('intellitxt_sections');
