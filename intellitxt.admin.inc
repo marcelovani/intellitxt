@@ -60,7 +60,7 @@ function intellitxt_admin_settings_form($form, &$form_state) {
       '#type' => 'machine_name',
       '#title' => t('Machine name'),
       '#description' => t('Enter a name for this tag'),
-      '#default_value' => $saved_tag['machine_name'],
+      '#default_value' => $machine_name,
       '#machine_name' => array(
         'exists' => 'intellitxt_admin_machine_name_exists',
       ),
