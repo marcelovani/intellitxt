@@ -51,27 +51,39 @@ function intellitxt_admin_settings_form($form, &$form_state) {
 
   // Build the current number of text fields
   for ($i = 0; $i < $form_state['num_tags']; $i++) {
-    $default_tag = (empty($saved_tags[$i])) ? '' : key($saved_tags[$i]);
+    $saved_tag = $saved_tags[$i];
+
+    $machine_name = (empty($saved_tag['machine_name'])) ? '' : $saved_tag['machine_name'];
     $form['tag_settings']['tags']['tag_' . $i]['machine_name'] = array(
       '#prefix' => '<div class="tags-tag"><div class="machine_name">',
       '#suffix' => '</div>',
       '#type' => 'machine_name',
       '#title' => t('Machine name'),
       '#description' => t('Enter a name for this tag'),
-      '#default_value' => $default_tag,
+      '#default_value' => $saved_tag['machine_name'],
       '#machine_name' => array(
         'exists' => 'intellitxt_admin_machine_name_exists',
       ),
       '#required' => FALSE,
     );
 
-    $default_ipid = (empty($saved_tags[$i])) ? '' : current($saved_tags[$i]);
+    $default_ipid = (empty($saved_tag['ipid'])) ? '' : $saved_tag['ipid'];
     $form['tag_settings']['tags']['tag_' . $i]['ipid'] = array(
       '#type' => 'textfield',
       '#title' => t('IPID'),
       '#prefix' => '<div class="ipid">',
-      '#suffix' => '</div></div>',
+      '#suffix' => '</div>',
       '#default_value' => $default_ipid,
+    );
+
+    $default_path = (empty($saved_tag['path'])) ? '' : $saved_tag['path'];
+    $form['tag_settings']['tags']['tag_' . $i]['path'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Script Path'),
+      '#description' => t('Use this if the provided script path is specific to this site.'),
+      '#prefix' => '<div class="path">',
+      '#suffix' => '</div></div>',
+      '#default_value' => $default_path,
     );
   }
 
@@ -151,18 +163,18 @@ function intellitxt_admin_settings_form_validate($form, &$form_state) {
   if ($form_state['values']['intellitxt_enabled']) {
     // Check we have at least one machine name and ipid pair
     $tags_state = $form_state['values']['tag_settings']['tags'];
-    for ($i = 0; $i < count($tags_state); $i++) {
-      $machine_name = $tags_state['tag_' . $i]['machine_name'];
-      $ipid = $tags_state['tag_' . $i]['ipid'];
-    
+    foreach ($form_state['values']['tag_settings']['tags'] as $tags_state) {
+      $machine_name = $tags_state['machine_name'];
+      $ipid = $tags_state['ipid'];
+      $path = $tags_state['path'];
       // Check for missing values
-      if ($machine_name && !$ipid) {
-        form_set_error('tags][tag_' . $i, 'Tag is missing IPID code');
-      } 
-      elseif (!$machine_name && $ipid) {
+      if (!$machine_name) {
         form_set_error('tags][tag_' . $i, 'Please add a machine name for IPID code');
       }
-    
+      if (!$ipid && !$path) {
+        form_set_error('tags][tag_' . $i, 'Please specify an IPID or Script Path');
+      }
+
       // Validate values
       if (preg_match('/\s/', $machine_name)) {
         form_set_error('tag_settings][tags][tag_' . $i . '][machine_name', 'Machine name must not contain any whitespace');
@@ -188,8 +200,13 @@ function intellitxt_admin_settings_form_submit($form, &$form_state) {
   for ($i=0; $i < count($tags_state); $i++) {
     $tag_machine_name = trim($tags_state['tag_' . $i]['machine_name'], '/');
     $tag_ipid = $tags_state['tag_' . $i]['ipid'];
-    if (!empty($tag_machine_name) && !empty($tag_ipid)) {
-      $tags[] = array($tag_machine_name => $tag_ipid);
+    $tag_path = $tags_state['tag_' . $i]['path'];
+    if (!empty($tag_machine_name) && (!empty($tag_ipid) || !empty($tag_path))) {
+      $tags[] = array(
+        'machine_name' => $tag_machine_name,
+        'ipid' => $tag_ipid,
+        'path' => $tag_path,
+      );
     }
   }
 

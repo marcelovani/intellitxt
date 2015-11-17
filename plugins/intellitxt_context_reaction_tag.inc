@@ -5,8 +5,11 @@ class intellitxt_context_reaction_tag extends context_reaction {
   function options_form($context) {
     $options = array();
     $tags = variable_get('intellitxt_tags', array());
+
     foreach ($tags as $tag) {
-      $options[key($tag)] = key($tag) . ' (' . current($tag) . ')';
+      $key = $tag['machine_name'];
+      $value = $tag['machine_name'] . ' (' . (!empty($tag['path']) ? 'Path: ' . $tag['path'] : 'IPID: ' . $tag['ipid']) . ')';
+      $options[$key] = $value;
     }
     asort($options);
 

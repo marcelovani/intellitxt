@@ -24,7 +24,13 @@ function intellitxt_add_tag($machine_name, $position) {
     $tag = _intellitxt_get_tag_by_name($machine_name);
     if ($tag) {
       $domain = variable_get('intellitxt_domain', $default = '');
-      $url = 'http://' . check_plain($domain) . '/intellitxt/front.asp?ipid=' . check_plain(current($tag));
+      if (!empty($tag['path'])) {
+        $path = check_plain(ltrim($tag['path'], '/'));
+      }
+      else {
+        $path = 'intellitxt/front.asp?ipid=' . check_plain($tag['ipid']);
+      }
+      $url = 'http://' . check_plain($domain) . '/' . $path;
       $options = array(
         'type' => 'external',
         'scope' => $position == 'BODY' ? 'footer' : 'header',
@@ -111,7 +117,7 @@ function intellitxt_context_registry() {
 function _intellitxt_get_tag_by_name($machine_name) {
   $tags = variable_get('intellitxt_tags', array());
   foreach ($tags as $tag) {
-    if (key($tag) == $machine_name) {
+    if ($tag['machine_name'] == $machine_name) {
       return $tag;
     }
   }

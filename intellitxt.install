@@ -50,3 +50,18 @@ function intellitxt_update_7200() {
   variable_set('intellitxt_tags', $tags);
   variable_del('intellitxt_sections');
 }
+
+/**
+ * Update existing intellitxt tags to use new storage format to allow for new script path setting.
+ */
+function intellitxt_update_7201() {
+  $current_tags = variable_get('intellitxt_tags');
+  $tags = array();
+  foreach ($current_tags as $i => $current_tag) {
+    $current_ipid = current($current_tag);
+    $tags[$i]['machine_name'] = key($current_tag);
+    $tags[$i]['ipid'] = $current_ipid;
+    $tags[$i]['path'] = '';
+  }
+  variable_set('intellitxt_tags', $tags);
+}

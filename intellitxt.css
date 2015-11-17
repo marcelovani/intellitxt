@@ -1,8 +1,10 @@
 .tags-tag .machine_name,
-.tags-tag .ipid {
-	width: 48%;
+.tags-tag .ipid,
+.tags-tag .path{
+	width: 30%;
 	float: left;
 }
-.tags-tag .ipid {
+.tags-tag .ipid,
+.tags-tag .path{
 	margin-left: 4%;
 }
